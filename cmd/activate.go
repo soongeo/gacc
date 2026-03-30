@@ -13,7 +13,8 @@ import (
 var activateCmd = &cobra.Command{
 	Use:   "activate [name]",
 	Short: "Activate a gacc account for the current Git repository.",
-	Args:  cobra.MinimumNArgs(1),
+	Args:  cobra.ExactArgs(1),
+	ValidArgsFunction: accountNameCompletionFunc,
 	Run: func(cmd *cobra.Command, args []string) {
 		accountName := args[0]
 		

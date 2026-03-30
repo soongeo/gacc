@@ -14,6 +14,7 @@ var addCmd = &cobra.Command{
 	Use:   "add [name]",
 	Short: "Add a new Git account and SSH key.",
 	Args:  cobra.MinimumNArgs(1),
+	ValidArgsFunction: accountNameCompletionFunc,
 	Run: func(cmd *cobra.Command, args []string) {
 		accountName := args[0]
 		fmt.Printf("🛠️  Starting setup for account '%s'...\n", accountName)

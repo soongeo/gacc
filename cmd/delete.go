@@ -14,6 +14,7 @@ var deleteCmd = &cobra.Command{
 	Use:   "delete [name]",
 	Short: "Delete a registered Git account and SSH key locally and from GitHub.",
 	Args:  cobra.MinimumNArgs(1),
+	ValidArgsFunction: accountNameCompletionFunc,
 	Run: func(cmd *cobra.Command, args []string) {
 		accountName := args[0]
 		fmt.Printf("🗑️  Starting deletion for account '%s'...\n", accountName)

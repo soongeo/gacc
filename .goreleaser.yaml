@@ -46,23 +46,23 @@ changelog:
 
 brews:
   - name: gacc
-    # 저장소를 현재 프로젝트인 soongeo/gacc 로 지정합니다.
+    # Distribute the formula to the current project repo (soongeo/gacc)
     repository:
       owner: soongeo
       name: gacc
 
-    # GitHub 루트가 아닌 Formula 폴더 하위에 설정 파일을 만들도록 지정
+    # Place the formula configuration inside the Formula directory instead of the repo root.
     directory: Formula
     
-    # 릴리즈 시 추가될 커밋 메시지 형식
+    # Commit message format used when publishing the formula.
     commit_msg_template: "brew: update formula for {{ .ProjectName }} version {{ .Tag }}"
 
-    # Homebrew Formula 설치 스크립트 작성
+    # Homebrew Formula installation script
     install: |-
       bin.install "gacc"
       
-      # [선택] Cobra를 통한 자동완성을 지원한다면 아래의 주석을 푸세요
-      # output = Utils.popen_read("#{bin}/gacc completion bash")
-      # (bash_completion/"gacc").write output
-      # output = Utils.popen_read("#{bin}/gacc completion zsh")
-      # (zsh_completion/"_gacc").write output
+      # Automatically generate and register Cobra autocomplete files (installed automatically on brew install)
+      output = Utils.popen_read("#{bin}/gacc completion bash")
+      (bash_completion/"gacc").write output
+      output = Utils.popen_read("#{bin}/gacc completion zsh")
+      (zsh_completion/"_gacc").write output

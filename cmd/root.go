@@ -14,9 +14,7 @@ var cfgFile string
 var rootCmd = &cobra.Command{
 	Use:   "gacc",
 	Short: "gacc is a Git Account & SSH Key Manager",
-	CompletionOptions: cobra.CompletionOptions{
-		HiddenDefaultCmd: true,
-	},
+	// Removed CompletionOptions.HiddenDefaultCmd to expose the completion command
 	Run: func(cmd *cobra.Command, args []string) {
 		fmt.Println("🚀 Welcome to gacc! Try 'gacc --help'.")
 	},
@@ -64,4 +62,17 @@ func initConfig() {
 	if err := viper.ReadInConfig(); err == nil {
 		// fmt.Println("설정 파일 로드 완료:", viper.ConfigFileUsed())
 	}
+}
+
+func accountNameCompletionFunc(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
+	if len(args) != 0 {
+		return nil, cobra.ShellCompDirectiveNoFileComp
+	}
+	initConfig() // ensure config is loaded
+	accounts := viper.GetStringMap("accounts")
+	var names []string
+	for name := range accounts {
+		names = append(names, name)
+	}
+	return names, cobra.ShellCompDirectiveNoFileComp
 }
