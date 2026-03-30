@@ -5,35 +5,35 @@
 class Gacc < Formula
   desc ""
   homepage ""
-  version "0.1.2"
+  version "0.1.3"
 
   on_macos do
     on_intel do
-      url "https://github.com/soongeo/gacc/releases/download/v0.1.2/gacc_Darwin_x86_64.tar.gz"
-      sha256 "105f46b4732e565d2a3ef4caf20878716fd0e2424f4add484f0a53945f3a14ce"
+      url "https://github.com/soongeo/gacc/releases/download/v0.1.3/gacc_Darwin_x86_64.tar.gz"
+      sha256 "e9992c020d7b8d0e3cffcf302c0610898d5c5e4d73c452b257d96a89749a9229"
 
       def install
         bin.install "gacc"
 
-        # [선택] Cobra를 통한 자동완성을 지원한다면 아래의 주석을 푸세요
-        # output = Utils.popen_read("#{bin}/gacc completion bash")
-        # (bash_completion/"gacc").write output
-        # output = Utils.popen_read("#{bin}/gacc completion zsh")
-        # (zsh_completion/"_gacc").write output
+        # Automatically generate and register Cobra autocomplete files (installed automatically on brew install)
+        output = Utils.popen_read("#{bin}/gacc completion bash")
+        (bash_completion/"gacc").write output
+        output = Utils.popen_read("#{bin}/gacc completion zsh")
+        (zsh_completion/"_gacc").write output
       end
     end
     on_arm do
-      url "https://github.com/soongeo/gacc/releases/download/v0.1.2/gacc_Darwin_arm64.tar.gz"
-      sha256 "5da3858870b76f1d003085dd044712babe29f3b456f1f7c98ab8864748e9c2d6"
+      url "https://github.com/soongeo/gacc/releases/download/v0.1.3/gacc_Darwin_arm64.tar.gz"
+      sha256 "f863f8a35cea200406055fbdc16acf573c92b91de98baea9ec62830e74521d14"
 
       def install
         bin.install "gacc"
 
-        # [선택] Cobra를 통한 자동완성을 지원한다면 아래의 주석을 푸세요
-        # output = Utils.popen_read("#{bin}/gacc completion bash")
-        # (bash_completion/"gacc").write output
-        # output = Utils.popen_read("#{bin}/gacc completion zsh")
-        # (zsh_completion/"_gacc").write output
+        # Automatically generate and register Cobra autocomplete files (installed automatically on brew install)
+        output = Utils.popen_read("#{bin}/gacc completion bash")
+        (bash_completion/"gacc").write output
+        output = Utils.popen_read("#{bin}/gacc completion zsh")
+        (zsh_completion/"_gacc").write output
       end
     end
   end
@@ -41,33 +41,33 @@ class Gacc < Formula
   on_linux do
     on_intel do
       if Hardware::CPU.is_64_bit?
-        url "https://github.com/soongeo/gacc/releases/download/v0.1.2/gacc_Linux_x86_64.tar.gz"
-        sha256 "8bb4fa516d390b71f9213c4096e05794f2f164311eef9af64694c5fe9ad65c06"
+        url "https://github.com/soongeo/gacc/releases/download/v0.1.3/gacc_Linux_x86_64.tar.gz"
+        sha256 "392ddcf9ce9ecad5217a01282d6270f04459380588879dca27906b95c6d89576"
 
         def install
           bin.install "gacc"
 
-          # [선택] Cobra를 통한 자동완성을 지원한다면 아래의 주석을 푸세요
-          # output = Utils.popen_read("#{bin}/gacc completion bash")
-          # (bash_completion/"gacc").write output
-          # output = Utils.popen_read("#{bin}/gacc completion zsh")
-          # (zsh_completion/"_gacc").write output
+          # Automatically generate and register Cobra autocomplete files (installed automatically on brew install)
+          output = Utils.popen_read("#{bin}/gacc completion bash")
+          (bash_completion/"gacc").write output
+          output = Utils.popen_read("#{bin}/gacc completion zsh")
+          (zsh_completion/"_gacc").write output
         end
       end
     end
     on_arm do
       if Hardware::CPU.is_64_bit?
-        url "https://github.com/soongeo/gacc/releases/download/v0.1.2/gacc_Linux_arm64.tar.gz"
-        sha256 "3466035699b5ef92c938c3cd4d55c4a053ec99b02403e1dbed1a4295db0492ff"
+        url "https://github.com/soongeo/gacc/releases/download/v0.1.3/gacc_Linux_arm64.tar.gz"
+        sha256 "d8462e65885cd9da0b923fefdfe326a19091e65b8ed0d9aff3703c5587ee6388"
 
         def install
           bin.install "gacc"
 
-          # [선택] Cobra를 통한 자동완성을 지원한다면 아래의 주석을 푸세요
-          # output = Utils.popen_read("#{bin}/gacc completion bash")
-          # (bash_completion/"gacc").write output
-          # output = Utils.popen_read("#{bin}/gacc completion zsh")
-          # (zsh_completion/"_gacc").write output
+          # Automatically generate and register Cobra autocomplete files (installed automatically on brew install)
+          output = Utils.popen_read("#{bin}/gacc completion bash")
+          (bash_completion/"gacc").write output
+          output = Utils.popen_read("#{bin}/gacc completion zsh")
+          (zsh_completion/"_gacc").write output
         end
       end
     end
