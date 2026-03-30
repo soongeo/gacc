@@ -14,7 +14,9 @@ var cfgFile string
 var rootCmd = &cobra.Command{
 	Use:   "gacc",
 	Short: "gacc is a Git Account & SSH Key Manager",
-	// Removed CompletionOptions.HiddenDefaultCmd to expose the completion command
+	CompletionOptions: cobra.CompletionOptions{
+		HiddenDefaultCmd: true,
+	},
 	Run: func(cmd *cobra.Command, args []string) {
 		fmt.Println("🚀 Welcome to gacc! Try 'gacc --help'.")
 	},
