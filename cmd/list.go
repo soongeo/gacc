@@ -5,7 +5,6 @@ import (
 	"os"
 	"strings"
 
-	"github.com/soongeo/gacc/pkg/git"
 	"github.com/soongeo/gacc/pkg/ssh"
 	"github.com/spf13/cobra"
 )
@@ -26,34 +25,33 @@ var listCmd = &cobra.Command{
 			return
 		}
 
-		var activeAccount string
-		if git.IsInsideWorkTree() {
-			if remoteUrl, err := git.GetRemoteURL("origin"); err == nil {
-				for _, account := range accounts {
-					targetHost := fmt.Sprintf("github.com-%s", account)
-					if strings.Contains(remoteUrl, targetHost+":") || strings.Contains(remoteUrl, targetHost+"/") {
-						activeAccount = account
-						break
-					}
-				}
-			}
+		status, err := collectResolvedStatus()
+		if err != nil {
+			fmt.Printf("❌ Failed to resolve current status: %v\n", err)
+			os.Exit(1)
 		}
 
 		fmt.Println("📋 Registered Git accounts:")
 		for _, account := range accounts {
-			if account == activeAccount {
-				fmt.Printf("  - %s 🌟 (active)\n", account)
-			} else {
+			labels := accountLabelsForList(account, status)
+			if len(labels) == 0 {
 				fmt.Printf("  - %s\n", account)
+				continue
 			}
+			fmt.Printf("  - %s [%s]\n", account, strings.Join(labels, ", "))
 		}
-		
+
 		fmt.Println()
-		if activeAccount == "" {
-			fmt.Println("💡 To use an account, run: gacc activate [name]")
-		} else {
-			fmt.Println("💡 To deactivate the current account, run: gacc deactivate")
+		if status.InGitRepo {
+			fmt.Printf("Current repo: %s\n", status.RepoRoot)
 		}
+		fmt.Printf("Auto match: %s\n", valueOrDefault(func() string {
+			if status.AutoRule == nil {
+				return ""
+			}
+			return status.AutoRule.Account
+		}(), "(none)"))
+		fmt.Printf("Global default: %s\n", valueOrDefault(globalAccountFromSSHCommand(status.GlobalSSHCmd), "(none)"))
 	},
 }
 

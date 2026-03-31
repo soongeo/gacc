@@ -35,7 +35,11 @@ Managing multiple GitHub accounts usually means editing `~/.ssh/config`, creatin
 - Authenticate with GitHub using the device flow
 - Update `~/.ssh/config` with account-specific GitHub host aliases
 - Activate a selected Git identity for the current Git repository
+- Activate a selected Git identity globally for all Git operations
+- Automatically apply accounts by directory using Git `includeIf`
 - Deactivate repository-specific overrides and return to global defaults
+- Show local, auto, and global account status for the current directory
+- Display, rename, cache, backup, and restore managed account keys
 - Delete local account records and remove uploaded SSH keys from GitHub
 
 ## Installation
@@ -67,6 +71,21 @@ gacc activate work
 
 This flow creates an SSH key for the `work` account, uploads it to GitHub, and applies that identity to the current repository.
 
+For a directory-based workflow, you can configure automatic switching:
+
+```bash
+gacc add work
+gacc add personal
+gacc auto add work ~/Work
+gacc auto add personal ~/Personal
+```
+
+For a machine-wide default identity, you can configure a global account:
+
+```bash
+gacc global activate work
+```
+
 ## Commands
 
 ### `gacc add [name]`
@@ -94,6 +113,8 @@ cd client-project
 gacc activate work
 ```
 
+If you omit `[name]`, `gacc` will try to use the currently active account or prompt you to choose one.
+
 ### `gacc deactivate`
 
 Removes repository-specific overrides so the repository goes back to your default Git behavior.
@@ -103,12 +124,169 @@ cd client-project
 gacc deactivate
 ```
 
+### `gacc global activate [name]`
+
+Applies a selected account globally by setting global `user.name`, `user.email`, and `core.sshCommand`.
+
+```bash
+gacc global activate work
+```
+
+### `gacc global deactivate`
+
+Clears global `gacc`-managed Git identity and SSH command settings.
+
+```bash
+gacc global deactivate
+```
+
+### `gacc auto add [name] [directory]`
+
+Automatically applies an account for repositories under a directory using Git `includeIf`.
+
+```bash
+gacc auto add work ~/Work
+```
+
+### `gacc auto list`
+
+Lists configured automatic directory-based account rules.
+
+```bash
+gacc auto list
+```
+
+### `gacc auto remove [name] [directory]`
+
+Removes an automatic directory-based account rule.
+
+```bash
+gacc auto remove work ~/Work
+```
+
+### `gacc status`
+
+Shows the local, automatic, and global account state for the current directory.
+
+```bash
+gacc status
+```
+
+### `gacc display [name]`
+
+Displays the public SSH key for an account.
+
+```bash
+gacc display work
+```
+
+### `gacc rename [old-name] [new-name]`
+
+Renames an account alias and updates associated key files and config references.
+
+```bash
+gacc rename work company
+```
+
+### `gacc cache [name]`
+
+Adds an account SSH key to `ssh-agent`.
+
+```bash
+gacc cache work
+```
+
+### `gacc backup [archive]`
+
+Backs up `gacc` config and managed SSH keys into a `tar.gz` archive.
+
+```bash
+gacc backup
+```
+
+### `gacc restore [archive]`
+
+Restores `gacc` config and managed SSH keys from a backup archive.
+
+```bash
+gacc restore ./gacc-backup-20260330153000.tar.gz
+```
+
 ### `gacc delete [name]`
 
 Deletes the local SSH key and config for an account and attempts to remove the registered public key from GitHub.
 
 ```bash
 gacc delete work
+```
+
+## Manual Vs Auto Vs Global
+
+`gacc` now supports three ways to apply an identity:
+
+- `local`: Explicitly set an account for the current repository with `gacc activate`
+- `auto`: Automatically apply an account by directory with `gacc auto add`
+- `global`: Set a machine-wide default with `gacc global activate`
+
+### When To Use Each
+
+- Use `local` when you want to choose the account per repository.
+- Use `auto` when everything under a folder such as `~/Work` should always use the same account.
+- Use `global` when you want a default account everywhere unless a more specific rule overrides it.
+
+### Priority Rules
+
+`gacc` resolves settings from most specific to least specific:
+
+1. Local repository settings from `gacc activate`
+2. Directory-based automatic settings from `gacc auto add`
+3. Global defaults from `gacc global activate`
+4. Any other plain Git defaults outside `gacc`
+
+In practice, that means:
+
+- Local `user.name` and `user.email` override auto and global values
+- Auto rules override global defaults for matching directories
+- Global settings act as the fallback when no local or auto rule applies
+
+Use `gacc status` to see which layer is active for the current directory.
+
+## Examples
+
+### Per-Repository Manual Switching
+
+```bash
+gacc add work
+gacc add personal
+
+cd ~/src/client-a
+gacc activate work
+
+cd ~/src/oss-project
+gacc activate personal
+```
+
+### Directory-Based Automatic Switching
+
+```bash
+gacc add work
+gacc add personal
+
+gacc auto add work ~/Work
+gacc auto add personal ~/Personal
+
+cd ~/Work/client-a
+gacc status
+```
+
+### Global Default With Local Override
+
+```bash
+gacc global activate personal
+
+cd ~/Work/client-a
+gacc activate work
+gacc status
 ```
 
 ## Common Use Cases
@@ -124,6 +302,14 @@ Create one account profile for `work` and another for `personal`, then activate 
 ### Keep repository identities local
 
 `gacc activate` writes repository-level settings instead of changing your global Git identity for every project.
+
+### Automatically apply work and personal identities by folder
+
+Use `gacc auto add` to map directories such as `~/Work` and `~/Personal` to different accounts.
+
+### Set one default account for everything
+
+Use `gacc global activate` when one identity should be the default unless a repository or directory rule overrides it.
 
 ## Comparison
 
@@ -157,9 +343,15 @@ Each account gets its own SSH key and GitHub SSH alias.
 Change into the repository directory and run `gacc activate [name]`.
 This updates the repository to use the selected account.
 
+### How do I automatically use my work account inside `~/Work`?
+
+Run `gacc auto add work ~/Work`.
+Then repositories under that directory will automatically use the configured account settings.
+
 ### Does `gacc` change my global Git configuration?
 
-No. `gacc activate` is designed to apply account settings to the current repository so your global defaults stay intact.
+`gacc activate` does not change your global Git configuration.
+If you want a global default identity, use `gacc global activate [name]`.
 
 ### Can `gacc` help prevent pushing with the wrong GitHub account?
 
@@ -177,7 +369,8 @@ Run `git status` first and make sure you are inside a repository before using `g
 
 ### The wrong account still appears active
 
-Run `gacc list` to inspect registered accounts, then verify that the repository `origin` remote uses the expected GitHub host alias.
+Run `gacc status` to inspect the current local, automatic, and global account layers.
+You can also run `gacc list` to see which registered accounts are marked as `local`, `auto`, or `global`.
 
 ## Documentation
 

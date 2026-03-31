@@ -11,13 +11,17 @@ import (
 )
 
 var activateCmd = &cobra.Command{
-	Use:   "activate [name]",
-	Short: "Activate a gacc account for the current Git repository.",
-	Args:  cobra.ExactArgs(1),
+	Use:               "activate [name]",
+	Short:             "Activate a gacc account for the current Git repository.",
+	Args:              cobra.MaximumNArgs(1),
 	ValidArgsFunction: accountNameCompletionFunc,
 	Run: func(cmd *cobra.Command, args []string) {
-		accountName := args[0]
-		
+		accountName, err := resolveAccountForOptionalArg(args)
+		if err != nil {
+			fmt.Printf("❌ Failed to resolve account: %v\n", err)
+			os.Exit(1)
+		}
+
 		fmt.Printf("🚀 Activating account '%s' for current project...\n", accountName)
 
 		// 1. Verify we are in a Git repo
@@ -32,7 +36,7 @@ var activateCmd = &cobra.Command{
 			fmt.Printf("❌ Failed to read SSH accounts: %v\n", err)
 			os.Exit(1)
 		}
-		
+
 		accountExists := false
 		for _, acc := range accounts {
 			if acc == accountName {

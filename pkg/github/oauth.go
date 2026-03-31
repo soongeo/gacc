@@ -72,7 +72,7 @@ func StartDeviceFlow(clientID string) (string, error) {
 	fmt.Println("\n=======================================================")
 	fmt.Printf("🔑 Please enter the following code in your browser: %s\n", deviceResp.UserCode)
 	fmt.Println("=======================================================")
-	
+
 	// 브라우저 자동 실행
 	if err := openBrowser(deviceResp.VerificationURI); err != nil {
 		fmt.Printf("⚠️ Cannot open browser automatically. Please visit the following URL manually:\n   👉 %s\n\n", deviceResp.VerificationURI)

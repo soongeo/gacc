@@ -6,7 +6,6 @@ import (
 	"encoding/pem"
 	"fmt"
 	"os"
-	"path/filepath"
 	"strings"
 
 	"golang.org/x/crypto/ssh"
@@ -33,17 +32,18 @@ func GenerateAndSaveEd25519(accountName string) (string, error) {
 	publicBytes := ssh.MarshalAuthorizedKey(sshPubKey)
 	publicStr := strings.TrimSpace(string(publicBytes)) + " gacc-" + accountName
 
-	// ~/.ssh 디렉토리 경로
-	homeDir, err := os.UserHomeDir()
+	sshDir, err := SSHDir()
 	if err != nil {
 		return "", err
 	}
-	sshDir := filepath.Join(homeDir, ".ssh")
 	if err := os.MkdirAll(sshDir, 0700); err != nil {
 		return "", err
 	}
 
-	privPath := filepath.Join(sshDir, fmt.Sprintf("gacc_%s", accountName))
+	privPath, err := PrivateKeyPath(accountName)
+	if err != nil {
+		return "", err
+	}
 	pubPath := privPath + ".pub"
 
 	// 파일 쓰기
@@ -59,15 +59,16 @@ func GenerateAndSaveEd25519(accountName string) (string, error) {
 
 // UpdateSSHConfig ~/.ssh/config 파일에 GitHub 호스트를 추가합니다.
 func UpdateSSHConfig(accountName string) error {
-	homeDir, err := os.UserHomeDir()
+	configPath, err := ConfigPath()
 	if err != nil {
 		return err
 	}
-	sshDir := filepath.Join(homeDir, ".ssh")
-	configPath := filepath.Join(sshDir, "config")
 
 	hostAlias := fmt.Sprintf("github.com-%s", accountName)
-	privKeyPath := filepath.Join(sshDir, fmt.Sprintf("gacc_%s", accountName))
+	privKeyPath, err := PrivateKeyPath(accountName)
+	if err != nil {
+		return err
+	}
 
 	configBlock := fmt.Sprintf(`
 Host %s
@@ -77,18 +78,10 @@ Host %s
     IdentitiesOnly yes
 `, hostAlias, privKeyPath)
 
-	// 이미 존재하는지 확인
-	content, err := os.ReadFile(configPath)
-	if err == nil {
-		if strings.Contains(string(content), hostAlias) {
-			// 이미 존재함
-			return nil
-		}
-	} else if !os.IsNotExist(err) {
+	if err := RemoveSSHConfig(accountName); err != nil {
 		return err
 	}
 
-	// append로 쓰기
 	f, err := os.OpenFile(configPath, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
 	if err != nil {
 		return err

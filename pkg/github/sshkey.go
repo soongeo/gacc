@@ -3,6 +3,7 @@ package github
 import (
 	"encoding/json"
 	"fmt"
+	"strings"
 
 	"github.com/go-resty/resty/v2"
 )
@@ -37,12 +38,13 @@ func AddSSHPublicKey(accessToken, accountName, publicKey string) error {
 type SSHKey struct {
 	ID    int    `json:"id"`
 	Title string `json:"title"`
+	Key   string `json:"key"`
 }
 
-// DeleteSSHPublicKey GitHub 계정에 등록된 ssh 키 중 title이 일치하는 키를 찾아 삭제합니다.
-func DeleteSSHPublicKey(accessToken, accountName string) error {
+// DeleteSSHPublicKey GitHub 계정에 등록된 ssh 키 중 공개키가 일치하는 키를 찾아 삭제합니다.
+func DeleteSSHPublicKey(accessToken, publicKey string) error {
 	client := resty.New()
-	targetTitle := fmt.Sprintf("gacc-%s", accountName)
+	targetKey := normalizePublicKey(publicKey)
 
 	// 1. 등록된 SSH 키 목록 가져오기
 	resp, err := client.R().
@@ -66,7 +68,7 @@ func DeleteSSHPublicKey(accessToken, accountName string) error {
 	// 2. 일치하는 키 찾기
 	var targetKeyID int
 	for _, k := range keys {
-		if k.Title == targetTitle {
+		if normalizePublicKey(k.Key) == targetKey {
 			targetKeyID = k.ID
 			break
 		}
@@ -92,4 +94,12 @@ func DeleteSSHPublicKey(accessToken, accountName string) error {
 	}
 
 	return nil
+}
+
+func normalizePublicKey(publicKey string) string {
+	fields := strings.Fields(strings.TrimSpace(publicKey))
+	if len(fields) < 2 {
+		return strings.TrimSpace(publicKey)
+	}
+	return fields[0] + " " + fields[1]
 }

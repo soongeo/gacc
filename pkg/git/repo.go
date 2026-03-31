@@ -4,7 +4,9 @@ import (
 	"bytes"
 	"errors"
 	"fmt"
+	"os"
 	"os/exec"
+	"path/filepath"
 	"strings"
 )
 
@@ -27,6 +29,45 @@ func GetRemoteURL(remote string) (string, error) {
 		return "", fmt.Errorf("could not get remote URL for '%s': %w", remote, err)
 	}
 	return strings.TrimSpace(out.String()), nil
+}
+
+func GetConfig(scope, key string) (string, error) {
+	args := []string{"config"}
+	if scope != "" {
+		args = append(args, scope)
+	}
+	args = append(args, "--get", key)
+
+	cmd := exec.Command("git", args...)
+	var out bytes.Buffer
+	cmd.Stdout = &out
+	err := cmd.Run()
+	if err != nil {
+		if exitErr, ok := err.(*exec.ExitError); ok && exitErr.ExitCode() == 1 {
+			return "", nil
+		}
+		return "", fmt.Errorf("failed to get git config %s: %w", key, err)
+	}
+	return strings.TrimSpace(out.String()), nil
+}
+
+func CurrentDir() (string, error) {
+	dir, err := os.Getwd()
+	if err != nil {
+		return "", err
+	}
+	return filepath.Clean(dir), nil
+}
+
+func WorkTreeRoot() (string, error) {
+	cmd := exec.Command("git", "rev-parse", "--show-toplevel")
+	var out bytes.Buffer
+	cmd.Stdout = &out
+	err := cmd.Run()
+	if err != nil {
+		return "", fmt.Errorf("failed to detect work tree root: %w", err)
+	}
+	return filepath.Clean(strings.TrimSpace(out.String())), nil
 }
 
 // SetRemoteURL sets a new URL for the specified remote branch.
@@ -53,10 +94,46 @@ func SetLocalUserConfig(name, email string) error {
 	return nil
 }
 
+// SetGlobalUserConfig configures the user.name and user.email globally.
+func SetGlobalUserConfig(name, email string) error {
+	if name != "" {
+		if err := exec.Command("git", "config", "--global", "user.name", name).Run(); err != nil {
+			return fmt.Errorf("failed to set global user.name: %w", err)
+		}
+	}
+	if email != "" {
+		if err := exec.Command("git", "config", "--global", "user.email", email).Run(); err != nil {
+			return fmt.Errorf("failed to set global user.email: %w", err)
+		}
+	}
+	return nil
+}
+
 // UnsetLocalUserConfig unsets the local user.name and user.email overrides.
 func UnsetLocalUserConfig() error {
 	_ = exec.Command("git", "config", "--local", "--unset", "user.name").Run()
 	_ = exec.Command("git", "config", "--local", "--unset", "user.email").Run()
+	return nil
+}
+
+// UnsetGlobalUserConfig unsets the global user.name and user.email values.
+func UnsetGlobalUserConfig() error {
+	_ = exec.Command("git", "config", "--global", "--unset", "user.name").Run()
+	_ = exec.Command("git", "config", "--global", "--unset", "user.email").Run()
+	return nil
+}
+
+// SetGlobalSSHCommand configures the global core.sshCommand value.
+func SetGlobalSSHCommand(command string) error {
+	if err := exec.Command("git", "config", "--global", "core.sshCommand", command).Run(); err != nil {
+		return fmt.Errorf("failed to set global core.sshCommand: %w", err)
+	}
+	return nil
+}
+
+// UnsetGlobalSSHCommand unsets the global core.sshCommand value.
+func UnsetGlobalSSHCommand() error {
+	_ = exec.Command("git", "config", "--global", "--unset", "core.sshCommand").Run()
 	return nil
 }
 

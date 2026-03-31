@@ -11,9 +11,9 @@ import (
 )
 
 var addCmd = &cobra.Command{
-	Use:   "add [name]",
-	Short: "Add a new Git account and SSH key.",
-	Args:  cobra.MinimumNArgs(1),
+	Use:               "add [name]",
+	Short:             "Add a new Git account and SSH key.",
+	Args:              cobra.MinimumNArgs(1),
 	ValidArgsFunction: accountNameCompletionFunc,
 	Run: func(cmd *cobra.Command, args []string) {
 		accountName := args[0]
@@ -25,7 +25,7 @@ var addCmd = &cobra.Command{
 			fmt.Printf("❌ Failed to generate SSH key: %v\n", err)
 			os.Exit(1)
 		}
-		
+
 		err = ssh.UpdateSSHConfig(accountName)
 		if err != nil {
 			fmt.Printf("❌ Failed to update SSH config: %v\n", err)
@@ -34,7 +34,7 @@ var addCmd = &cobra.Command{
 		fmt.Printf("✅ SSH key generated and ~/.ssh/config updated\n")
 
 		fmt.Println("\n[2/4] Starting GitHub Authentication (Device Flow)...")
-		
+
 		// GitHub OAuth App Client ID
 		clientID := viper.GetString("github.client_id")
 		if clientID == "" {
@@ -68,7 +68,7 @@ var addCmd = &cobra.Command{
 		} else {
 			fmt.Printf("⚠️ Warning: Could not fetch user profile: %v\n", err)
 		}
-		
+
 		fmt.Printf("\n🎉 Account '%s' setup completed successfully!\n", accountName)
 		fmt.Printf("You can now test the connection with: 'ssh -T github.com-%s'\n", accountName)
 	},

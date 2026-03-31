@@ -3,26 +3,22 @@ package ssh
 import (
 	"fmt"
 	"os"
-	"path/filepath"
 	"strings"
 )
 
 // DeleteSSHKeys 로컬의 SSH 키 파일들을 삭제합니다.
 func DeleteSSHKeys(accountName string) error {
-	homeDir, err := os.UserHomeDir()
+	privPath, err := PrivateKeyPath(accountName)
 	if err != nil {
 		return err
 	}
-	sshDir := filepath.Join(homeDir, ".ssh")
-	
-	privPath := filepath.Join(sshDir, fmt.Sprintf("gacc_%s", accountName))
 	pubPath := privPath + ".pub"
 
 	// Delete private key
 	if err := os.Remove(privPath); err != nil && !os.IsNotExist(err) {
 		return fmt.Errorf("failed to delete private key: %w", err)
 	}
-	
+
 	// Delete public key
 	if err := os.Remove(pubPath); err != nil && !os.IsNotExist(err) {
 		return fmt.Errorf("failed to delete public key: %w", err)
@@ -33,12 +29,11 @@ func DeleteSSHKeys(accountName string) error {
 
 // RemoveSSHConfig ~/.ssh/config 에서 해당 계정의 Host 블록을 제거합니다.
 func RemoveSSHConfig(accountName string) error {
-	homeDir, err := os.UserHomeDir()
+	configPath, err := ConfigPath()
 	if err != nil {
 		return err
 	}
-	configPath := filepath.Join(homeDir, ".ssh", "config")
-	
+
 	content, err := os.ReadFile(configPath)
 	if err != nil {
 		if os.IsNotExist(err) {
@@ -46,16 +41,16 @@ func RemoveSSHConfig(accountName string) error {
 		}
 		return err
 	}
-	
+
 	lines := strings.Split(string(content), "\n")
 	var newLines []string
-	
+
 	skipMode := false
 	hostAlias := fmt.Sprintf("Host github.com-%s", accountName)
-	
+
 	for _, line := range lines {
 		trimmed := strings.TrimSpace(line)
-		
+
 		if skipMode {
 			if strings.HasPrefix(trimmed, "Host ") || strings.HasPrefix(trimmed, "Match ") {
 				skipMode = false
@@ -63,17 +58,17 @@ func RemoveSSHConfig(accountName string) error {
 				continue
 			}
 		}
-		
+
 		if trimmed == hostAlias {
 			skipMode = true
 			continue
 		}
-		
+
 		if !skipMode {
 			newLines = append(newLines, line)
 		}
 	}
-	
+
 	// 연속된 빈 줄 정리 (선택 사항)
 	var cleaned []string
 	for i, line := range newLines {
@@ -85,11 +80,11 @@ func RemoveSSHConfig(accountName string) error {
 		}
 		cleaned = append(cleaned, line)
 	}
-	
+
 	newContent := strings.Join(cleaned, "\n")
 	if err := os.WriteFile(configPath, []byte(newContent), 0644); err != nil {
 		return err
 	}
-	
+
 	return nil
 }

@@ -2,17 +2,15 @@ package ssh
 
 import (
 	"os"
-	"path/filepath"
 	"strings"
 )
 
 // ListAccounts returns a list of configured gacc account names present in ~/.ssh/config.
 func ListAccounts() ([]string, error) {
-	homeDir, err := os.UserHomeDir()
+	configPath, err := ConfigPath()
 	if err != nil {
 		return nil, err
 	}
-	configPath := filepath.Join(homeDir, ".ssh", "config")
 
 	content, err := os.ReadFile(configPath)
 	if err != nil {
