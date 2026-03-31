@@ -1,6 +1,10 @@
 # Git Account & SSH Key Manager
 
+[![Build Status](https://github.com/soongeo/gacc/actions/workflows/ci.yml/badge.svg)](https://github.com/soongeo/gacc/actions/workflows/ci.yml) [![Go Report Card](https://goreportcard.com/badge/github.com/soongeo/gacc)](https://goreportcard.com/report/github.com/soongeo/gacc) [![Go Reference](https://pkg.go.dev/badge/github.com/soongeo/gacc.svg)](https://pkg.go.dev/github.com/soongeo/gacc) [![Go Version](https://img.shields.io/github/go-mod/go-version/soongeo/gacc)](https://github.com/soongeo/gacc) [![Latest Release](https://img.shields.io/github/v/release/soongeo/gacc)](https://github.com/soongeo/gacc/releases) [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+
 `gacc` is the project name for this Git Account & SSH Key Manager.
+
+# gacc
 
 `gacc` is a CLI for managing multiple GitHub accounts and SSH keys on one machine.
 It helps developers switch between personal and work Git identities safely, configure SSH access per account, and avoid pushing or committing with the wrong credentials.
