@@ -5,12 +5,12 @@
 class Gacc < Formula
   desc ""
   homepage ""
-  version "0.2.0"
+  version "0.2.1"
 
   on_macos do
     on_intel do
-      url "https://github.com/soongeo/gacc/releases/download/v0.2.0/gacc_Darwin_x86_64.tar.gz"
-      sha256 "064d2be40ca7742a5f53a4ffae45401ecd587305a52c8c69c48b0843c3ea8a32"
+      url "https://github.com/soongeo/gacc/releases/download/v0.2.1/gacc_Darwin_x86_64.tar.gz"
+      sha256 "249868674f004a9f3c430bffc20d3c4a64f53f54f3d24147ce4b3fc1617c3d61"
 
       def install
         bin.install "gacc"
@@ -23,8 +23,8 @@ class Gacc < Formula
       end
     end
     on_arm do
-      url "https://github.com/soongeo/gacc/releases/download/v0.2.0/gacc_Darwin_arm64.tar.gz"
-      sha256 "76fa5a82e3d2d05a4d2b3211c947324cb9802dad54bcc564afe7f52762d7cb5c"
+      url "https://github.com/soongeo/gacc/releases/download/v0.2.1/gacc_Darwin_arm64.tar.gz"
+      sha256 "9db9369a09e6123af69f2e718c1c14ac955f70605b111964c39770bcb0619313"
 
       def install
         bin.install "gacc"
@@ -41,8 +41,8 @@ class Gacc < Formula
   on_linux do
     on_intel do
       if Hardware::CPU.is_64_bit?
-        url "https://github.com/soongeo/gacc/releases/download/v0.2.0/gacc_Linux_x86_64.tar.gz"
-        sha256 "26ce049379ddd8e394415e8d235f8aad189aece9af3963cfe455c338b973a768"
+        url "https://github.com/soongeo/gacc/releases/download/v0.2.1/gacc_Linux_x86_64.tar.gz"
+        sha256 "2fd11be3eff37d0d13d6cf816989f700d4394d45e373147db3d964be32e8876e"
 
         def install
           bin.install "gacc"
@@ -57,8 +57,8 @@ class Gacc < Formula
     end
     on_arm do
       if Hardware::CPU.is_64_bit?
-        url "https://github.com/soongeo/gacc/releases/download/v0.2.0/gacc_Linux_arm64.tar.gz"
-        sha256 "94afa3581195cf6521f2ba8276f569d2641b2f31687d8476f17325b4fd1c8e65"
+        url "https://github.com/soongeo/gacc/releases/download/v0.2.1/gacc_Linux_arm64.tar.gz"
+        sha256 "a22929ca695e461e485b612da2ed009cc39dc1f7d76f89f5b69ed51b428d050a"
 
         def install
           bin.install "gacc"
