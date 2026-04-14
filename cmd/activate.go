@@ -50,7 +50,7 @@ var activateCmd = &cobra.Command{
 		}
 
 		// 3. Update Git Remote URL
-		fmt.Println("\n[1/2] Updating origin URL for SSH alias routing...")
+		fmt.Println("\n[1/3] Updating origin URL for SSH alias routing...")
 		remoteUrl, err := git.GetRemoteURL("origin")
 		if err != nil {
 			fmt.Printf("⚠️ Warning: Could not get 'origin' remote URL. Attempting to proceed without updating remote. error: %v\n", err)
@@ -71,8 +71,22 @@ var activateCmd = &cobra.Command{
 			}
 		}
 
-		// 4. Update Git User Config
-		fmt.Println("\n[2/2] Overriding local Git user configurations...")
+		// 4. Set local core.sshCommand to ensure the correct key is used
+		fmt.Println("\n[2/3] Setting local SSH command for correct key routing...")
+		privateKeyPath, err := ssh.PrivateKeyPath(accountName)
+		if err != nil {
+			fmt.Printf("❌ Failed to resolve SSH key path: %v\n", err)
+			os.Exit(1)
+		}
+		sshCommand := fmt.Sprintf("ssh -i \"%s\" -o IdentitiesOnly=yes", privateKeyPath)
+		if err := git.SetLocalSSHCommand(sshCommand); err != nil {
+			fmt.Printf("❌ Failed to set local SSH command: %v\n", err)
+			os.Exit(1)
+		}
+		fmt.Printf("✅ Local SSH command set for '%s'\n", accountName)
+
+		// 5. Update Git User Config
+		fmt.Println("\n[3/3] Overriding local Git user configurations...")
 		name := viper.GetString("accounts." + accountName + ".name")
 		email := viper.GetString("accounts." + accountName + ".email")
 

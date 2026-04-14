@@ -21,7 +21,7 @@ var deactivateCmd = &cobra.Command{
 		}
 
 		// 2. Clear Remote Alias
-		fmt.Println("\n[1/2] Restoring standard GitHub SSH remote URL...")
+		fmt.Println("\n[1/3] Restoring standard GitHub SSH remote URL...")
 		remoteUrl, err := git.GetRemoteURL("origin")
 		if err == nil {
 			standardUrl, err := git.RevertRemoteHostToStandard(remoteUrl)
@@ -34,8 +34,13 @@ var deactivateCmd = &cobra.Command{
 			}
 		}
 
-		// 3. Clear Local User configs
-		fmt.Println("\n[2/2] Clearing local Git user.name & user.email configs...")
+		// 3. Clear Local SSH Command
+		fmt.Println("\n[2/3] Clearing local core.sshCommand config...")
+		_ = git.UnsetLocalSSHCommand()
+		fmt.Println("✅ Local SSH command unset (will use global/SSH config defaults).")
+
+		// 4. Clear Local User configs
+		fmt.Println("\n[3/3] Clearing local Git user.name & user.email configs...")
 		err = git.UnsetLocalUserConfig()
 		if err != nil {
 			// It may emit error if they weren't set, which is harmless.

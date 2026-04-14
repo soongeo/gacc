@@ -137,6 +137,20 @@ func UnsetGlobalSSHCommand() error {
 	return nil
 }
 
+// SetLocalSSHCommand configures the local (per-repo) core.sshCommand value.
+func SetLocalSSHCommand(command string) error {
+	if err := exec.Command("git", "config", "--local", "core.sshCommand", command).Run(); err != nil {
+		return fmt.Errorf("failed to set local core.sshCommand: %w", err)
+	}
+	return nil
+}
+
+// UnsetLocalSSHCommand unsets the local (per-repo) core.sshCommand value.
+func UnsetLocalSSHCommand() error {
+	_ = exec.Command("git", "config", "--local", "--unset", "core.sshCommand").Run()
+	return nil
+}
+
 // ParseAndReplaceRemoteHost takes an existing remote (e.g., git@github.com:usr/repo.git or https://github.com/usr/repo.git)
 // and returns the modified string that uses the target gacc host alias (e.g., git@github.com-alias:usr/repo.git).
 func ParseAndReplaceRemoteHost(url string, accountAlias string) (string, error) {
